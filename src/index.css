@@ -49,7 +49,6 @@ body,
   text-align: center;
 }
 
-.northface > .scrollDist,
 .scene-vignette,
 .welcome-words,
 .services-backdrop,
@@ -148,7 +147,7 @@ main svg {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   opacity: 0;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .services-backdrop {
@@ -292,7 +291,7 @@ main svg {
 
 .scrollDist {
   width: 100%;
-  height: 360%;
+  height: 500vh;
 }
 
 .brand-bar {

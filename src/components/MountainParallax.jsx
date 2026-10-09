@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { ScrollSmoother } from 'gsap/ScrollSmoother';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother);
 
 const ASSETS = {
   aerial: '/scene/palm-aerial.webp',
@@ -25,7 +26,7 @@ const SERVICES = [
     image: '/cards/DCB%20Mobile%20Payment%20Connections.png',
     from: { x: -900, y: 520, rotate: -18 },
     fromMobile: { x: -260, y: 420, rotate: -12 },
-    at: 0.44,
+    at: 0.62,
   },
   {
     id: 'gateway',
@@ -38,7 +39,7 @@ const SERVICES = [
     image: '/cards/tajmahal.png',
     from: { x: -640, y: 520, rotate: -14 },
     fromMobile: { x: -220, y: 420, rotate: -10 },
-    at: 0.5,
+    at: 0.68,
   },
   {
     id: 'crossborder',
@@ -51,7 +52,7 @@ const SERVICES = [
     image: '/cards/crossborder.png',
     from: { x: 640, y: 520, rotate: 14 },
     fromMobile: { x: 220, y: 420, rotate: 10 },
-    at: 0.56,
+    at: 0.74,
   },
   {
     id: 'solutions',
@@ -64,36 +65,37 @@ const SERVICES = [
     image: '/cards/Telecom%20Solutions%20Hub%20Infographic.png',
     from: { x: 900, y: 520, rotate: 18 },
     fromMobile: { x: 260, y: 420, rotate: 12 },
-    at: 0.62,
+    at: 0.8,
   },
 ];
 
-// Greetings that take over from "Welcome" as the user scrolls down over the Palm.
+// Greetings that take over from "Welcome", one per scroll step, while descending over the Palm.
 const DESCENT_WORDS = [
   { text: 'Bienvenue', lang: 'fr', dir: 'ltr' },
   { text: 'Bienvenido', lang: 'es', dir: 'ltr' },
   { text: 'مرحباً', lang: 'ar', dir: 'rtl' },
 ];
 
-// Timeline positions (the whole scroll is ~1.12 units): "Welcome" leaves at the first scroll,
-// the descent greetings swap until ~0.17, the beach lands at 0.2 with the Hindi greeting,
-// then the cards from 0.44.
-const DESCENT_END = 0.26;
-const LAND_AT = 0.2;
-const WELCOME_OUT_AT = 0.012;
-const WORD_STEP = 0.045;
-const WORD_DROP = 0.035;
-const WORD_OUT = 0.02;
-const HINDI_AT = LAND_AT + 0.02;
-const HINDI_DROP = 0.06;
+// Timeline positions (the whole scroll is ~1.3 units): "Welcome" leaves at 0.03, each descent
+// greeting gets a 0.1 step from 0.05, the beach lands at 0.36 with the Hindi greeting at 0.4,
+// then the cards from 0.62.
+const DESCENT_END = 0.4;
+const LAND_AT = 0.36;
+const WORD_FIRST = 0.05;
+const WORD_STEP = 0.1;
+const WORD_IN = 0.055;
+const WORD_OUT = 0.045;
+const WORD_OVERLAP = 0.03;
+const HINDI_AT = LAND_AT + 0.04;
+const HINDI_IN = 0.08;
 
-const WORD_ABOVE = { y: '-75vh', opacity: 1 };
-const WORD_LANDED = { y: 0, opacity: 1 };
-const WORD_GONE = { y: '45vh', opacity: 0 };
+const WORD_ABOVE = { y: '-22vh', opacity: 0, scale: 0.92 };
+const WORD_SHOWN = { y: 0, opacity: 1, scale: 1 };
+const WORD_BELOW = { y: '18vh', opacity: 0, scale: 1.06 };
 
 // Seconds after mount (the preloader is still fading out) before "Welcome" starts gliding down.
-const INTRO_DELAY_S = 0.5;
-const INTRO_S = 2.8;
+const INTRO_DELAY_S = 0.2;
+const INTRO_S = 1.3;
 
 // Drops rising behind each card; x is % of the card column, s is size as % of its width.
 const LIQUID_DROPS = [
@@ -124,6 +126,14 @@ export default function MountainParallax() {
         scale: 0.88,
       });
 
+      // Wheel and trackpad scrolling glide with inertia instead of jumping in steps.
+      ScrollSmoother.create({
+        wrapper: '.smooth-wrapper',
+        content: '.smooth-content',
+        smooth: 1.4,
+        smoothTouch: 0.1,
+      });
+
       gsap.set('.services', { xPercent: -50, yPercent: -50 });
       SERVICES.forEach((service) => gsap.set(`.service-card--${service.id}`, fromFor(service)));
       gsap.from('.brand-bar', { y: -24, opacity: 0, duration: 0.9, ease: 'power3.out', delay: 0.15 });
@@ -135,21 +145,21 @@ export default function MountainParallax() {
             trigger: '.scrollDist',
             start: '0 0',
             end: '100% 100%',
-            scrub: 1,
+            scrub: 0.6,
           },
         })
         // Descend from orbit over the Palm: the photo zooms in while cloud layers rush past.
         .fromTo(
           '.scene-aerial',
-          { scale: 1, filter: 'blur(0px)' },
-          { scale: 2.6, filter: 'blur(3px)', ease: 'power2.in', duration: DESCENT_END },
+          { scale: 1 },
+          { scale: 2.6, ease: 'power1.in', duration: DESCENT_END },
           0,
         )
         .fromTo('.cloud1', { y: 100 }, { y: -900, ease: 'none', duration: DESCENT_END }, 0)
         .fromTo('.cloud2', { y: -150 }, { y: -700, ease: 'none', duration: DESCENT_END }, 0)
         .fromTo('.cloud3', { y: -50 }, { y: -800, ease: 'none', duration: DESCENT_END }, 0)
         .to('.scene-clouds', { opacity: 0, ease: 'none', duration: 0.06 }, DESCENT_END - 0.04)
-        .fromTo('.scroll-hint, .arrow', { opacity: 1 }, { opacity: 0, duration: 0.1 }, 0)
+        .fromTo('.scroll-hint, .arrow', { opacity: 1 }, { opacity: 0, duration: 0.06 }, 0)
         // A bright haze hides the cut from the aerial shot to the beach.
         .fromTo('.scene-haze', { opacity: 0 }, { opacity: 0.92, ease: 'power1.in', duration: 0.06 }, LAND_AT - 0.06)
         .to('.scene-haze', { opacity: 0, ease: 'power1.out', duration: 0.08 }, LAND_AT)
@@ -157,7 +167,7 @@ export default function MountainParallax() {
         .fromTo('.scene-beach', { scale: 1.35 }, { scale: 1, ease: 'power2.out', duration: 0.12 }, LAND_AT)
         .to('.scene-aerial', { opacity: 0, duration: 0.01 }, LAND_AT)
         .to('.scene-beach', { scale: 1.08, ease: 'none', duration: 0.4 }, LAND_AT + 0.12)
-        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.1 }, 0.4);
+        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.1 }, 0.58);
 
       SERVICES.forEach((service) => {
         tl.fromTo(
@@ -168,37 +178,35 @@ export default function MountainParallax() {
         );
       });
 
-      // "Welcome" glides down from the top centre on its own; scrolling then carries it further
-      // down and out. The slot and the word are tweened separately so the two never fight.
+      // "Welcome" glides down from the top centre on its own; the slot carries that intro so the
+      // scroll tweens on the word itself never fight it.
       gsap.fromTo(
         '.welcome-slot--intro',
         { y: '-38vh', opacity: 0 },
         { y: 0, opacity: 1, duration: INTRO_S, ease: 'power2.out', delay: INTRO_DELAY_S },
       );
-      gsap.set('.welcome-word--en', { opacity: 1 });
-      tl.fromTo(
-        '.welcome-word--en',
-        WORD_LANDED,
-        { ...WORD_GONE, ease: 'power1.in', duration: WORD_OUT },
-        WELCOME_OUT_AT,
-      );
+      gsap.set('.welcome-word--en', WORD_SHOWN);
 
-      // Each descent greeting drops from the top, then falls away as the next one arrives.
-      gsap.utils.toArray('.welcome-word--descent').forEach((word, i) => {
-        const start = WELCOME_OUT_AT + WORD_OUT * 0.6 + i * WORD_STEP;
-        tl.fromTo(word, WORD_ABOVE, { ...WORD_LANDED, ease: 'bounce.out', duration: WORD_DROP }, start).fromTo(
+      // Each scroll step slides the current greeting down and out while the next one settles in.
+      const outro = (word, at) =>
+        tl.fromTo(
           word,
-          WORD_LANDED,
-          { ...WORD_GONE, ease: 'power1.in', duration: WORD_OUT, immediateRender: false },
-          start + WORD_STEP - WORD_OUT * 0.6,
+          WORD_SHOWN,
+          { ...WORD_BELOW, ease: 'sine.in', duration: WORD_OUT, immediateRender: false },
+          at,
         );
+      outro('.welcome-word--en', WORD_FIRST - WORD_OVERLAP);
+      gsap.utils.toArray('.welcome-word--descent').forEach((word, i) => {
+        const start = WORD_FIRST + i * WORD_STEP;
+        tl.fromTo(word, WORD_ABOVE, { ...WORD_SHOWN, ease: 'sine.out', duration: WORD_IN }, start);
+        outro(word, start + WORD_STEP - WORD_OVERLAP);
       });
 
-      // The Hindi greeting lands on the beach and stays.
+      // The Hindi greeting settles onto the beach and stays.
       tl.fromTo(
         '.welcome-word--hi',
         WORD_ABOVE,
-        { ...WORD_LANDED, ease: 'bounce.out', duration: HINDI_DROP },
+        { ...WORD_SHOWN, ease: 'back.out(1.2)', duration: HINDI_IN },
         HINDI_AT,
       );
     }, root);
@@ -228,7 +236,13 @@ export default function MountainParallax() {
 
   return (
     <div ref={rootRef} className="northface">
-      <div className="scrollDist" />
+      {/* Only the scroll spacer goes through the smoother; the fixed scene must stay outside
+          its transformed content or it would scroll away. */}
+      <div className="smooth-wrapper">
+        <div className="smooth-content">
+          <div className="scrollDist" />
+        </div>
+      </div>
       <main>
         <img className="scene-photo scene-beach" src={ASSETS.beach} alt="" />
         <img className="scene-photo scene-aerial" src={ASSETS.aerial} alt="" />
