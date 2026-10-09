@@ -5,9 +5,10 @@ import am5geodata_worldLow from '@amcharts/amcharts5-geodata/worldLow';
 import { Globe, IndianRupee, RadioTower, Smartphone } from 'lucide-react';
 import useBootProgress from '../hooks/useBootProgress';
 
-const STORY_MS = 5300;
+// Route (0.3s delay + 4.6s) and zoom-out (0.8s) finish at 5.7s; the overview then holds for 2s.
+const STORY_MS = 7700;
 const ROUTE_DELAY_S = 0.3;
-const ROUTE_S = 3.8;
+const ROUTE_S = 4.6;
 const ZOOM_OUT_S = 0.8;
 const HOLD_MS = 150;
 const SAFETY_TIMEOUT_MS = 10000;
@@ -33,15 +34,17 @@ const STOPS = [
     full: 'Direct Carrier Billing',
     detail: 'Pay from mobile balance',
     Icon: Smartphone,
-    at: [103.82, 1.35],
+    at: [36.82, -1.29],
+    side: 'left',
   },
   {
-    id: 'gateway',
-    name: 'India Gateway',
-    full: 'India Payment Gateway',
-    detail: 'UPI · Cards · Checkout',
-    Icon: IndianRupee,
-    at: [72.88, 19.08],
+    id: 'solutions',
+    name: 'Solutions',
+    full: 'Telecom Solutions',
+    detail: 'VAS · USSD · Mobile Ads',
+    Icon: RadioTower,
+    at: [39.17, 21.49],
+    side: 'left',
   },
   {
     id: 'crossborder',
@@ -50,33 +53,43 @@ const STOPS = [
     detail: 'FX · Corridors · Liquidity',
     Icon: Globe,
     at: [55.27, 25.2],
+    side: 'above',
   },
   {
-    id: 'solutions',
-    name: 'Solutions',
-    full: 'Telecom Solutions',
-    detail: 'VAS · USSD · Mobile Ads',
-    Icon: RadioTower,
-    at: [31.24, 30.04],
+    id: 'gateway',
+    name: 'India Gateway',
+    full: 'India Payment Gateway',
+    detail: 'UPI · Cards · Checkout',
+    Icon: IndianRupee,
+    at: [72.88, 19.08],
+    side: 'right',
   },
 ];
 
-/** Waypoints the route travels through (lon, lat). */
+/** Waypoints the route travels through (lon, lat): a loop that ends back at DCB. */
 const WAYPOINTS = [
-  [103.82, 1.35],
-  [98, 6.5],
-  [88, 9],
-  [80.27, 13.08],
-  [76.5, 16.5],
-  [72.88, 19.08],
-  [66, 21],
-  [60, 23.5],
-  [55.27, 25.2],
-  [50, 24],
+  [36.82, -1.29],
+  [37.6, 3.5],
+  [38.74, 9.03],
+  [38.5, 15.5],
+  [39.17, 21.49],
+  [42.5, 23],
   [46.7, 24.7],
-  [39, 26.5],
-  [31.24, 30.04],
+  [50, 24],
+  [55.27, 25.2],
+  [60, 23.5],
+  [66, 21],
+  [72.88, 19.08],
+  [72.5, 11],
+  [70, 3],
+  [64, -4],
+  [54, -7],
+  [44, -5],
+  [36.82, -1.29],
 ];
+
+/** NASA Blue Marble texture cropped to exactly the map window above. */
+const EARTH_SRC = '/route-earth.jpg';
 
 function ringToD(ring) {
   let d = '';
@@ -87,19 +100,10 @@ function ringToD(ring) {
   return `${d}Z`;
 }
 
-function inWindow(coords) {
-  return coords.some(([lon, lat]) => lon > LON_MIN - 10 && lon < LON_MAX + 10 && lat > LAT_MIN - 10 && lat < LAT_MAX + 10);
-}
-
-function buildCountries() {
-  return am5geodata_worldLow.features
-    .filter((f) => f.properties.id !== 'AQ')
-    .map((f) => {
-      const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-      const rings = polys.map((poly) => poly[0]).filter(inWindow);
-      return rings.length ? { id: f.properties.id, d: rings.map(ringToD).join('') } : null;
-    })
-    .filter(Boolean);
+function buildIndiaOutline() {
+  const india = am5geodata_worldLow.features.find((f) => f.properties.id === 'IN');
+  const polys = india.geometry.type === 'Polygon' ? [india.geometry.coordinates] : india.geometry.coordinates;
+  return polys.map((poly) => ringToD(poly[0])).join('');
 }
 
 /** Smooth, gently meandering path through the waypoints (Catmull-Rom → Bézier). */
@@ -172,7 +176,11 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
   onRevealRef.current = onReveal;
 
   const map = useMemo(
-    () => ({ countries: buildCountries(), route: buildRoute(), graticule: buildGraticule() }),
+    () => ({
+      india: buildIndiaOutline(),
+      route: buildRoute(),
+      graticule: buildGraticule(),
+    }),
     [],
   );
 
@@ -216,19 +224,22 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
     const isMobile = window.innerWidth < 640;
     const followScale = isMobile ? 0.8 : 1;
     const { bounds } = map.route;
-    // Leave room either side for the stop labels, which are centred on the pins.
+    // Leave room either side for the stop labels, which sit beside the outer pins.
     const fitScale = () =>
       Math.min(
-        (window.innerWidth - (isMobile ? 130 : 240)) / bounds.w,
-        (window.innerHeight * 0.45) / bounds.h,
+        (window.innerWidth - (isMobile ? 260 : 420)) / bounds.w,
+        (window.innerHeight * 0.36) / bounds.h,
         1.1,
       );
+    // The overview sits a little below centre so the top label clears the header.
+    const fitView = () => {
+      const s = fitScale();
+      return { x: bounds.x + bounds.w / 2, y: bounds.y + bounds.h / 2 - (window.innerHeight * 0.04) / s, s };
+    };
 
     const proxy = { t: reducedMotion ? 1 : 0 };
     const start = path.getPointAtLength(0);
-    const cam = reducedMotion
-      ? { x: bounds.x + bounds.w / 2, y: bounds.y + bounds.h / 2, s: fitScale() }
-      : { x: start.x, y: start.y, s: followScale * 1.25 };
+    const cam = reducedMotion ? fitView() : { x: start.x, y: start.y, s: followScale * 1.25 };
     const target = { ...cam, s: reducedMotion ? cam.s : followScale, follow: !reducedMotion };
     let reached = 0;
 
@@ -284,9 +295,7 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
           target.follow = false;
         })
         .to(target, {
-          x: bounds.x + bounds.w / 2,
-          y: bounds.y + bounds.h / 2,
-          s: fitScale(),
+          ...fitView(),
           duration: ZOOM_OUT_S,
           ease: 'power2.inOut',
         });
@@ -316,7 +325,7 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
     >
       {visible && (
         <motion.div
-          className="route-preloader fixed inset-0 z-[100] overflow-hidden bg-[#F5F7FB]"
+          className="route-preloader fixed inset-0 z-[100] overflow-hidden bg-[#0b0a32]"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6, ease }}
           aria-label="Loading nSERVE services"
@@ -335,22 +344,21 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
                 viewBox={`0 0 ${MAP_W} ${MAP_H}`}
                 aria-hidden="true"
               >
+                <image href={EARTH_SRC} width={MAP_W} height={MAP_H} preserveAspectRatio="none" />
                 <path className="route-graticule" d={map.graticule} />
-                {map.countries.map(({ id, d }) => (
-                  <path key={id} d={d} className={id === 'IN' ? 'route-land route-land--india' : 'route-land'} />
-                ))}
+                <path className="route-india" d={map.india} />
                 <path className="route-path-glow" d={map.route.d} />
                 <path ref={routeRef} className="route-path" d={map.route.d} />
               </svg>
             </div>
 
-            {STOPS.map(({ id, name, detail, Icon }, i) => (
+            {STOPS.map(({ id, name, detail, Icon, side }, i) => (
               <div
                 key={id}
                 ref={(el) => {
                   stopRefs.current[i] = el;
                 }}
-                className={`route-stop${i % 2 ? ' route-stop--below' : ''}`}
+                className={`route-stop route-stop--${side}`}
               >
                 <span className="route-stop-pin" />
                 <span className="route-stop-label">
@@ -384,14 +392,14 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
                 <img
                   src="/nservelogo.png"
                   alt=""
-                  className="h-10 sm:h-12 w-auto object-contain"
+                  className="h-10 sm:h-12 w-auto object-contain rounded-xl bg-white/95 p-1"
                   aria-hidden="true"
                 />
-                <span className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                <span className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
                   nSERVE
                 </span>
               </div>
-              <p className="font-script text-3xl sm:text-4xl text-orange-600 leading-none">
+              <p className="font-script text-3xl sm:text-4xl text-orange-400 leading-none">
                 Digital Meets Direct
               </p>
             </motion.div>

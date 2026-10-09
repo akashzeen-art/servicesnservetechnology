@@ -29,7 +29,7 @@ export default function App() {
   return (
     <>
       {booting && (
-        <Suspense fallback={<div className="fixed inset-0 z-[100] bg-[#F5F7FB]" aria-hidden />}>
+        <Suspense fallback={<div className="fixed inset-0 z-[100] bg-[#0b0a32]" aria-hidden />}>
           <RoutePreloader onDone={finishBoot} onReveal={revealHome} images={HOMEPAGE_IMAGES} />
         </Suspense>
       )}

@@ -6,12 +6,9 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const ASSETS = {
-  cloud1Mask: 'https://assets.codepen.io/721952/cloud1Mask.jpg',
-  sky: 'https://assets.codepen.io/721952/sky.jpg',
-  mountBg: 'https://assets.codepen.io/721952/mountBg.png',
-  mountMg: 'https://assets.codepen.io/721952/mountMg.png',
+  aerial: '/scene/palm-aerial.webp',
+  beach: '/scene/dubai-beach.jpg',
   cloud2: 'https://assets.codepen.io/721952/cloud2.png',
-  mountFg: 'https://assets.codepen.io/721952/mountFg.png',
   cloud1: 'https://assets.codepen.io/721952/cloud1.png',
   cloud3: 'https://assets.codepen.io/721952/cloud3.png',
 };
@@ -28,7 +25,7 @@ const SERVICES = [
     image: '/cards/DCB%20Mobile%20Payment%20Connections.png',
     from: { x: -900, y: 520, rotate: -18 },
     fromMobile: { x: -260, y: 420, rotate: -12 },
-    at: 0.32,
+    at: 0.44,
   },
   {
     id: 'gateway',
@@ -41,7 +38,7 @@ const SERVICES = [
     image: '/cards/tajmahal.png',
     from: { x: -640, y: 520, rotate: -14 },
     fromMobile: { x: -220, y: 420, rotate: -10 },
-    at: 0.38,
+    at: 0.5,
   },
   {
     id: 'crossborder',
@@ -54,7 +51,7 @@ const SERVICES = [
     image: '/cards/crossborder.png',
     from: { x: 640, y: 520, rotate: 14 },
     fromMobile: { x: 220, y: 420, rotate: 10 },
-    at: 0.44,
+    at: 0.56,
   },
   {
     id: 'solutions',
@@ -67,26 +64,36 @@ const SERVICES = [
     image: '/cards/Telecom%20Solutions%20Hub%20Infographic.png',
     from: { x: 900, y: 520, rotate: 18 },
     fromMobile: { x: 260, y: 420, rotate: 12 },
-    at: 0.5,
+    at: 0.62,
   },
 ];
 
-const WELCOME_WORDS = [
-  { text: 'Welcome', lang: 'en', dir: 'ltr' },
+// Greetings that take over from "Welcome" as the user scrolls down over the Palm.
+const DESCENT_WORDS = [
   { text: 'Bienvenue', lang: 'fr', dir: 'ltr' },
   { text: 'Bienvenido', lang: 'es', dir: 'ltr' },
   { text: 'مرحباً', lang: 'ar', dir: 'rtl' },
-  { text: 'स्वागत है', lang: 'hi', dir: 'ltr' },
 ];
 
-// Timeline positions (the whole scroll is ~1 unit; cards start at 0.32).
-const WORD_STEP = 0.065;
-const WORD_IN = 0.035;
-const WORD_HOLD = 0.012;
+// Timeline positions (the whole scroll is ~1.12 units): "Welcome" leaves at the first scroll,
+// the descent greetings swap until ~0.17, the beach lands at 0.2 with the Hindi greeting,
+// then the cards from 0.44.
+const DESCENT_END = 0.26;
+const LAND_AT = 0.2;
+const WELCOME_OUT_AT = 0.012;
+const WORD_STEP = 0.045;
+const WORD_DROP = 0.035;
+const WORD_OUT = 0.02;
+const HINDI_AT = LAND_AT + 0.02;
+const HINDI_DROP = 0.06;
 
-const WORD_BACK = { opacity: 0, scale: 0.3, filter: 'blur(12px)' };
-const WORD_FRONT = { opacity: 1, scale: 1, filter: 'blur(0px)' };
-const WORD_PAST = { opacity: 0, scale: 1.8, filter: 'blur(10px)' };
+const WORD_ABOVE = { y: '-75vh', opacity: 1 };
+const WORD_LANDED = { y: 0, opacity: 1 };
+const WORD_GONE = { y: '45vh', opacity: 0 };
+
+// Seconds after mount (the preloader is still fading out) before "Welcome" starts gliding down.
+const INTRO_DELAY_S = 0.5;
+const INTRO_S = 2.8;
 
 // Drops rising behind each card; x is % of the card column, s is size as % of its width.
 const LIQUID_DROPS = [
@@ -131,15 +138,26 @@ export default function MountainParallax() {
             scrub: 1,
           },
         })
-        .fromTo('.sky', { y: 0 }, { y: -200 }, 0)
-        .fromTo('.cloud1', { y: 100 }, { y: -800 }, 0)
-        .fromTo('.cloud2', { y: -150 }, { y: -500 }, 0)
-        .fromTo('.cloud3', { y: -50 }, { y: -650 }, 0)
-        .fromTo('.mountBg', { y: -10 }, { y: -100 }, 0)
-        .fromTo('.mountMg', { y: -30 }, { y: -250 }, 0)
-        .fromTo('.mountFg', { y: -50 }, { y: -600 }, 0)
-        .fromTo('.scroll-hint', { opacity: 1 }, { opacity: 0 }, 0)
-        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.3 }, 0.24);
+        // Descend from orbit over the Palm: the photo zooms in while cloud layers rush past.
+        .fromTo(
+          '.scene-aerial',
+          { scale: 1, filter: 'blur(0px)' },
+          { scale: 2.6, filter: 'blur(3px)', ease: 'power2.in', duration: DESCENT_END },
+          0,
+        )
+        .fromTo('.cloud1', { y: 100 }, { y: -900, ease: 'none', duration: DESCENT_END }, 0)
+        .fromTo('.cloud2', { y: -150 }, { y: -700, ease: 'none', duration: DESCENT_END }, 0)
+        .fromTo('.cloud3', { y: -50 }, { y: -800, ease: 'none', duration: DESCENT_END }, 0)
+        .to('.scene-clouds', { opacity: 0, ease: 'none', duration: 0.06 }, DESCENT_END - 0.04)
+        .fromTo('.scroll-hint, .arrow', { opacity: 1 }, { opacity: 0, duration: 0.1 }, 0)
+        // A bright haze hides the cut from the aerial shot to the beach.
+        .fromTo('.scene-haze', { opacity: 0 }, { opacity: 0.92, ease: 'power1.in', duration: 0.06 }, LAND_AT - 0.06)
+        .to('.scene-haze', { opacity: 0, ease: 'power1.out', duration: 0.08 }, LAND_AT)
+        .fromTo('.scene-beach', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.01 }, LAND_AT - 0.01)
+        .fromTo('.scene-beach', { scale: 1.35 }, { scale: 1, ease: 'power2.out', duration: 0.12 }, LAND_AT)
+        .to('.scene-aerial', { opacity: 0, duration: 0.01 }, LAND_AT)
+        .to('.scene-beach', { scale: 1.08, ease: 'none', duration: 0.4 }, LAND_AT + 0.12)
+        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.1 }, 0.4);
 
       SERVICES.forEach((service) => {
         tl.fromTo(
@@ -150,23 +168,39 @@ export default function MountainParallax() {
         );
       });
 
-      // Welcome words travel from behind the scene to past the viewer as the user scrolls.
-      const words = gsap.utils.toArray('.welcome-word');
-      words.forEach((word, i) => {
-        if (i === 0) {
-          gsap.set(word, WORD_FRONT);
-          tl.fromTo(word, WORD_FRONT, { ...WORD_PAST, ease: 'power1.in', duration: WORD_IN }, WORD_HOLD);
-          return;
-        }
-        const start = WORD_HOLD + (i - 1) * WORD_STEP + WORD_IN / 2;
-        gsap.set(word, WORD_BACK);
-        tl.fromTo(word, WORD_BACK, { ...WORD_FRONT, ease: 'power2.out', duration: WORD_IN }, start).fromTo(
+      // "Welcome" glides down from the top centre on its own; scrolling then carries it further
+      // down and out. The slot and the word are tweened separately so the two never fight.
+      gsap.fromTo(
+        '.welcome-slot--intro',
+        { y: '-38vh', opacity: 0 },
+        { y: 0, opacity: 1, duration: INTRO_S, ease: 'power2.out', delay: INTRO_DELAY_S },
+      );
+      gsap.set('.welcome-word--en', { opacity: 1 });
+      tl.fromTo(
+        '.welcome-word--en',
+        WORD_LANDED,
+        { ...WORD_GONE, ease: 'power1.in', duration: WORD_OUT },
+        WELCOME_OUT_AT,
+      );
+
+      // Each descent greeting drops from the top, then falls away as the next one arrives.
+      gsap.utils.toArray('.welcome-word--descent').forEach((word, i) => {
+        const start = WELCOME_OUT_AT + WORD_OUT * 0.6 + i * WORD_STEP;
+        tl.fromTo(word, WORD_ABOVE, { ...WORD_LANDED, ease: 'bounce.out', duration: WORD_DROP }, start).fromTo(
           word,
-          WORD_FRONT,
-          { ...WORD_PAST, ease: 'power1.in', duration: WORD_IN, immediateRender: false },
-          start + WORD_IN + WORD_HOLD,
+          WORD_LANDED,
+          { ...WORD_GONE, ease: 'power1.in', duration: WORD_OUT, immediateRender: false },
+          start + WORD_STEP - WORD_OUT * 0.6,
         );
       });
+
+      // The Hindi greeting lands on the beach and stays.
+      tl.fromTo(
+        '.welcome-word--hi',
+        WORD_ABOVE,
+        { ...WORD_LANDED, ease: 'bounce.out', duration: HINDI_DROP },
+        HINDI_AT,
+      );
     }, root);
 
     const arrowBtn = root.querySelector('#arrow-btn');
@@ -196,21 +230,24 @@ export default function MountainParallax() {
     <div ref={rootRef} className="northface">
       <div className="scrollDist" />
       <main>
-        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <mask id="m">
-            <g className="cloud1">
-              <rect fill="#fff" width="100%" height="801" y="799" />
-              <image href={ASSETS.cloud1Mask} width="1200" height="800" />
-            </g>
-          </mask>
+        <img className="scene-photo scene-beach" src={ASSETS.beach} alt="" />
+        <img className="scene-photo scene-aerial" src={ASSETS.aerial} alt="" />
 
-          <image className="sky" href={ASSETS.sky} width="1200" height="590" />
-          <image className="mountBg" href={ASSETS.mountBg} width="1200" height="800" />
-          <image className="mountMg" href={ASSETS.mountMg} width="1200" height="800" />
-          <image className="cloud2" href={ASSETS.cloud2} width="1200" height="800" />
-          <image className="mountFg" href={ASSETS.mountFg} width="1200" height="800" />
-          <image className="cloud1" href={ASSETS.cloud1} width="1200" height="800" />
-          <image className="cloud3" href={ASSETS.cloud3} width="1200" height="800" />
+        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <linearGradient id="cloud-fade-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#000" />
+            <stop offset="12%" stopColor="#fff" />
+            <stop offset="70%" stopColor="#fff" />
+            <stop offset="100%" stopColor="#000" />
+          </linearGradient>
+          <mask id="cloud-fade" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#cloud-fade-grad)" />
+          </mask>
+          <g className="scene-clouds">
+            <image className="cloud2" href={ASSETS.cloud2} width="1200" height="800" mask="url(#cloud-fade)" />
+            <image className="cloud1" href={ASSETS.cloud1} width="1200" height="800" mask="url(#cloud-fade)" />
+            <image className="cloud3" href={ASSETS.cloud3} width="1200" height="800" mask="url(#cloud-fade)" />
+          </g>
           <defs>
             <linearGradient id="arrow-grad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#fbbf24" />
@@ -223,21 +260,26 @@ export default function MountainParallax() {
             points="599,318 599,357 590,347 590,350 600,360 610,350 610,347 601,357 601,318"
           />
 
-          <g mask="url(#m)">
-            <rect fill="#fff" width="100%" height="100%" />
-          </g>
-
           <rect id="arrow-btn" width="100" height="100" opacity="0" x="550" y="290" style={{ cursor: 'pointer' }} />
         </svg>
 
+        <div className="scene-haze" aria-hidden="true" />
         <div className="scene-vignette" aria-hidden="true" />
 
         <div className="welcome-words">
-          {WELCOME_WORDS.map((word) => (
-            <span key={word.lang} className="welcome-word" lang={word.lang} dir={word.dir}>
+          <div className="welcome-slot welcome-slot--intro">
+            <span className="welcome-word welcome-word--en" lang="en">
+              Welcome
+            </span>
+          </div>
+          {DESCENT_WORDS.map((word) => (
+            <span key={word.lang} className="welcome-word welcome-word--descent" lang={word.lang} dir={word.dir}>
               {word.text}
             </span>
           ))}
+          <span className="welcome-word welcome-word--hi" lang="hi">
+            स्वागत है
+          </span>
         </div>
 
         <div className="services-backdrop" aria-hidden="true">

@@ -77,6 +77,35 @@ main svg {
   height: 100%;
 }
 
+.scene-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform, opacity;
+}
+
+.scene-aerial {
+  object-position: 46% 52%;
+  transform-origin: 46% 52%;
+}
+
+.scene-beach {
+  opacity: 0;
+  object-position: 50% 40%;
+  transform-origin: 50% 45%;
+}
+
+.scene-haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, #fff 0%, #eef6ff 55%, #d7e9f7 100%);
+}
+
 .scene-vignette {
   inset: 0;
   pointer-events: none;
@@ -96,6 +125,13 @@ main svg {
   z-index: 3;
   pointer-events: none;
   filter: drop-shadow(0 6px 18px rgba(17, 27, 41, 0.45)) drop-shadow(0 0 2px rgba(17, 27, 41, 0.35));
+}
+
+.welcome-slot {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  will-change: transform, opacity;
 }
 
 .welcome-word {
@@ -256,7 +292,7 @@ main svg {
 
 .scrollDist {
   width: 100%;
-  height: 300%;
+  height: 360%;
 }
 
 .brand-bar {
@@ -697,9 +733,7 @@ main svg {
 
 /* Route preloader */
 .route-preloader {
-  background:
-    radial-gradient(ellipse at 50% 46%, rgba(234, 88, 12, 0.08), transparent 50%),
-    linear-gradient(145deg, #f8fafc, #eef2f7 55%, #e8eef5);
+  background: #0b0a32;
 }
 
 .route-world {
@@ -717,22 +751,17 @@ main svg {
 
 .route-graticule {
   fill: none;
-  stroke: #94a3b8;
-  stroke-opacity: 0.16;
+  stroke: #a5b4fc;
+  stroke-opacity: 0.06;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
-.route-land {
-  fill: #dbe3ec;
-  stroke: #b8c4d3;
-  stroke-width: 0.8;
+.route-india {
+  fill: rgba(251, 191, 36, 0.08);
+  stroke: rgba(251, 191, 36, 0.8);
+  stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
-}
-
-.route-land--india {
-  fill: #fde3cc;
-  stroke: #f59e0b;
 }
 
 .route-path,
@@ -861,9 +890,31 @@ main svg {
   transform: translate(-50%, -6px) scale(0.92);
 }
 
+.route-stop--left .route-stop-label,
+.route-stop--right .route-stop-label {
+  bottom: auto;
+  top: 0;
+}
+
+.route-stop--left .route-stop-label {
+  left: auto;
+  right: 16px;
+  transform: translate(6px, -50%) scale(0.92);
+}
+
+.route-stop--right .route-stop-label {
+  left: 16px;
+  transform: translate(-6px, -50%) scale(0.92);
+}
+
 .route-stop.is-on .route-stop-label {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
+}
+
+.route-stop--left.is-on .route-stop-label,
+.route-stop--right.is-on .route-stop-label {
+  transform: translate(0, -50%) scale(1);
 }
 
 .route-traveller span {
@@ -885,13 +936,13 @@ main svg {
   z-index: 5;
   pointer-events: none;
   background:
-    linear-gradient(to top, rgba(245, 247, 251, 0.96) 0, rgba(245, 247, 251, 0.7) 14%, transparent 30%),
-    linear-gradient(to bottom, rgba(245, 247, 251, 0.85) 0, transparent 22%),
+    linear-gradient(to top, rgba(8, 7, 38, 0.94) 0, rgba(8, 7, 38, 0.65) 14%, transparent 30%),
+    linear-gradient(to bottom, rgba(8, 7, 38, 0.8) 0, transparent 22%),
     radial-gradient(
       ellipse at center,
-      transparent 45%,
-      rgba(245, 247, 251, 0.4) 78%,
-      rgba(245, 247, 251, 0.9) 100%
+      transparent 55%,
+      rgba(8, 7, 38, 0.3) 82%,
+      rgba(8, 7, 38, 0.65) 100%
     );
 }
 
@@ -917,7 +968,7 @@ main svg {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #334155;
+  color: #e2e8f0;
 }
 
 .route-hud-status p span {
@@ -975,9 +1026,9 @@ main svg {
   height: 36px;
   border-radius: 12px;
   color: #94a3b8;
-  background: #fff;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 8px 18px -14px rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 8px 18px -14px rgba(0, 0, 0, 0.6);
   transition:
     color 0.35s ease,
     background 0.35s ease,
@@ -1007,7 +1058,7 @@ main svg {
 }
 
 .route-step.is-on .route-step-label {
-  color: #0f172a;
+  color: #fff;
 }
 
 @media (max-width: 640px) {
