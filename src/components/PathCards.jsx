@@ -112,10 +112,10 @@ export default function PathCards() {
           <span>nSERVE</span>
         </div>
         <div className="path-nav-links">
-          <a href="https://gateway.nserve.co/" target="_blank" rel="noopener noreferrer">
+          <a href="https://gateways.nservetechnology.com/" target="_blank" rel="noopener noreferrer">
             Gateway
           </a>
-          <a href="http://payments.nserve.co/" target="_blank" rel="noopener noreferrer">
+          <a href="https://payments.nservetechnology.com/" target="_blank" rel="noopener noreferrer">
             Cross Border
           </a>
         </div>

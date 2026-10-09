@@ -1,36 +1,10 @@
 /** The four business verticals the preloader walks through, in loading order. */
 export const PRELOADER_STAGES = [
-  {
-    id: 'dcb',
-    number: '01',
-    title: 'Direct Carrier Billing',
-    short: 'DCB',
-    status: 'Connecting Carrier Networks',
-  },
-  {
-    id: 'gateway',
-    number: '02',
-    title: 'India Payment Gateway',
-    short: 'India Gateway',
-    status: 'Initializing Payment Rails',
-  },
-  {
-    id: 'crossborder',
-    number: '03',
-    title: 'Forex & Cross-Border',
-    short: 'Cross Border',
-    status: 'Connecting Global Corridors',
-  },
-  {
-    id: 'solutions',
-    number: '04',
-    title: 'Telecom Solutions',
-    short: 'Solutions',
-    status: 'Enabling Digital Services',
-  },
+  { id: 'dcb', number: '01', title: 'Direct Carrier Billing' },
+  { id: 'gateway', number: '02', title: 'India Payment Gateway' },
+  { id: 'crossborder', number: '03', title: 'Forex & Cross-Border' },
+  { id: 'solutions', number: '04', title: 'Telecom Solutions' },
 ];
-
-export const FINAL_STATUS = 'Digital Meets Direct';
 
 export function stageForProgress(progress) {
   const index = Math.floor((Number(progress) || 0) / 25);
@@ -44,13 +18,6 @@ export const INDIA_HUB = { longitude: 79, latitude: 22.5 };
 export const DCB_NODES = {
   subscriber: { dLon: -19, dLat: -9, label: 'Subscriber', icon: 'phone' },
   carrier: { dLon: 19, dLat: 8, label: 'Carrier', icon: 'tower' },
-  cells: [
-    { dLon: -12, dLat: 12 },
-    { dLon: 6, dLat: 14 },
-    { dLon: -3, dLat: -14 },
-    { dLon: 14, dLat: -9 },
-    { dLon: -21, dLat: 4 },
-  ],
 };
 
 export const GATEWAY_NODES = [
@@ -61,8 +28,8 @@ export const GATEWAY_NODES = [
 ];
 
 export const SOLUTION_NODES = [
-  { id: 'offers', label: 'Offers Enablement', services: 'USSD · SMSC · DMC · LBS', dLon: -21, dLat: 12 },
-  { id: 'core', label: 'Core VAS', services: 'Beep Call · MCN & CMB', dLon: 21, dLat: 12 },
-  { id: 'digital', label: 'VAS & Digital', services: 'SDP · WAVE · Cloud IVR · CRBT', dLon: -21, dLat: -12 },
-  { id: 'ads', label: 'Mobile Advertisement', services: 'Bulk SMS · OBD · USSD Push', dLon: 21, dLat: -12 },
+  { id: 'offers', label: 'Offers Enablement', dLon: -21, dLat: 12 },
+  { id: 'core', label: 'Core VAS', dLon: 21, dLat: 12 },
+  { id: 'digital', label: 'VAS & Digital', dLon: -21, dLat: -12 },
+  { id: 'ads', label: 'Mobile Advertisement', dLon: 21, dLat: -12 },
 ];

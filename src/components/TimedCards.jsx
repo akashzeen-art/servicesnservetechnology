@@ -485,10 +485,10 @@ export default function TimedCards() {
         </div>
         <div className="nav-links">
           <div className="active">Services</div>
-          <a href="https://gateway.nserve.co/" target="_blank" rel="noopener noreferrer">
+          <a href="https://gateways.nservetechnology.com/" target="_blank" rel="noopener noreferrer">
             Gateway
           </a>
-          <a href="http://payments.nserve.co/" target="_blank" rel="noopener noreferrer">
+          <a href="https://payments.nservetechnology.com/" target="_blank" rel="noopener noreferrer">
             Cross Border
           </a>
         </div>

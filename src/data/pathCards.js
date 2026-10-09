@@ -8,7 +8,7 @@ export const pathCardsData = [
   {
     id: 'gateway',
     kind: 'code',
-    href: 'https://gateway.nserve.co/',
+    href: 'https://gateways.nservetechnology.com/',
     cta: 'Visit Gateway →',
     lines: [
       { type: 'dt', text: 'service: "Payment Gateway"' },
@@ -25,7 +25,7 @@ export const pathCardsData = [
   {
     id: 'crossborder',
     kind: 'code',
-    href: 'http://payments.nserve.co/',
+    href: 'https://payments.nservetechnology.com/',
     cta: 'Visit Payments →',
     lines: [
       { type: 'dt', text: 'service: "Cross Border"' },
@@ -45,8 +45,8 @@ export const pathCardsData = [
     href: null,
     lines: [
       { type: 'dt', text: 'choose: {' },
-      { type: 'dd', text: 'gateway: "gateway.nserve.co",' },
-      { type: 'dd', text: 'payments: "payments.nserve.co"' },
+      { type: 'dd', text: 'gateway: "gateways.nservetechnology.com",' },
+      { type: 'dd', text: 'payments: "payments.nservetechnology.com"' },
       { type: 'dt', text: '}' },
       { type: 'dt', text: '' },
       { type: 'dt', text: 'action: "click a card"' },

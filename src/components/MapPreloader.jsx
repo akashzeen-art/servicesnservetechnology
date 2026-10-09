@@ -345,11 +345,10 @@ export default function MapPreloader({ onDone, onReveal, images = [], storyMs = 
             className="pointer-events-none absolute inset-0 z-[1]"
             style={{
               backgroundImage:
-                'radial-gradient(ellipse at 72% 48%, rgba(234,88,12,0.2), transparent 42%), radial-gradient(ellipse at 18% 62%, rgba(14,165,233,0.12), transparent 40%), radial-gradient(ellipse at 48% 8%, rgba(245,158,11,0.1), transparent 38%)',
+                'radial-gradient(ellipse at 50% 46%, rgba(234,88,12,0.12), transparent 45%)',
             }}
             aria-hidden="true"
           />
-          <div className="pointer-events-none absolute inset-0 z-[1] grid-bg opacity-25" aria-hidden="true" />
 
           {/* Spotlight behind India — the camera keeps India near the centre */}
           <motion.div
@@ -420,7 +419,6 @@ export default function MapPreloader({ onDone, onReveal, images = [], storyMs = 
             </motion.div>
 
             <div className="flex-1" />
-
             <motion.div
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}

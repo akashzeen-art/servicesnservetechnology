@@ -36,7 +36,7 @@ const SERVICES = [
     title: 'India Gateway',
     copy: 'Accept payments the way India prefers — UPI, cards, wallets and hosted checkout.',
     tags: ['UPI', 'Cards', 'Checkout'],
-    href: 'https://gateway.nserve.co/',
+    href: 'https://gateways.nservetechnology.com/',
     cta: 'View More',
     image: '/cards/tajmahal.png',
     from: { x: -640, y: 520, rotate: -14 },
@@ -49,7 +49,7 @@ const SERVICES = [
     title: 'FOREX repatriation Enabler',
     copy: 'Move value worldwide with corridor coverage, currency liquidity and compliance-ready flows.',
     tags: ['FX', 'Corridors', 'Liquidity'],
-    href: 'http://payments.nserve.co/',
+    href: 'https://payments.nservetechnology.com/',
     cta: 'View More',
     image: '/cards/crossborder.png',
     from: { x: 640, y: 520, rotate: 14 },
@@ -69,6 +69,31 @@ const SERVICES = [
     fromMobile: { x: 260, y: 420, rotate: 12 },
     at: 0.5,
   },
+];
+
+const WELCOME_WORDS = [
+  { text: 'Welcome', lang: 'en', dir: 'ltr' },
+  { text: 'Bienvenue', lang: 'fr', dir: 'ltr' },
+  { text: 'Bienvenido', lang: 'es', dir: 'ltr' },
+  { text: 'مرحباً', lang: 'ar', dir: 'rtl' },
+  { text: 'स्वागत है', lang: 'hi', dir: 'ltr' },
+];
+
+// Timeline positions (the whole scroll is ~1 unit; cards start at 0.32).
+const WORD_STEP = 0.065;
+const WORD_IN = 0.035;
+const WORD_HOLD = 0.012;
+
+const WORD_BACK = { opacity: 0, scale: 0.3, filter: 'blur(12px)' };
+const WORD_FRONT = { opacity: 1, scale: 1, filter: 'blur(0px)' };
+const WORD_PAST = { opacity: 0, scale: 1.8, filter: 'blur(10px)' };
+
+// Drops rising behind each card; x is % of the card column, s is size as % of its width.
+const LIQUID_DROPS = [
+  { x: 34, s: 58, d: 9 },
+  { x: 66, s: 44, d: 11.5 },
+  { x: 48, s: 32, d: 7 },
+  { x: 58, s: 26, d: 13 },
 ];
 
 export const HOMEPAGE_IMAGES = [
@@ -113,7 +138,8 @@ export default function MountainParallax() {
         .fromTo('.mountBg', { y: -10 }, { y: -100 }, 0)
         .fromTo('.mountMg', { y: -30 }, { y: -250 }, 0)
         .fromTo('.mountFg', { y: -50 }, { y: -600 }, 0)
-        .fromTo('.scroll-hint', { opacity: 1 }, { opacity: 0 }, 0);
+        .fromTo('.scroll-hint', { opacity: 1 }, { opacity: 0 }, 0)
+        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.3 }, 0.24);
 
       SERVICES.forEach((service) => {
         tl.fromTo(
@@ -121,6 +147,24 @@ export default function MountainParallax() {
           fromFor(service),
           { x: 0, y: 0, rotate: 0, opacity: 1, scale: 1, ease: 'power3.out' },
           service.at,
+        );
+      });
+
+      // Welcome words travel from behind the scene to past the viewer as the user scrolls.
+      const words = gsap.utils.toArray('.welcome-word');
+      words.forEach((word, i) => {
+        if (i === 0) {
+          gsap.set(word, WORD_FRONT);
+          tl.fromTo(word, WORD_FRONT, { ...WORD_PAST, ease: 'power1.in', duration: WORD_IN }, WORD_HOLD);
+          return;
+        }
+        const start = WORD_HOLD + (i - 1) * WORD_STEP + WORD_IN / 2;
+        gsap.set(word, WORD_BACK);
+        tl.fromTo(word, WORD_BACK, { ...WORD_FRONT, ease: 'power2.out', duration: WORD_IN }, start).fromTo(
+          word,
+          WORD_FRONT,
+          { ...WORD_PAST, ease: 'power1.in', duration: WORD_IN, immediateRender: false },
+          start + WORD_IN + WORD_HOLD,
         );
       });
     }, root);
@@ -133,7 +177,7 @@ export default function MountainParallax() {
       gsap.to('.arrow', { y: 0, duration: 0.5, ease: 'power3.out', overwrite: 'auto' });
     };
     const onClick = () => {
-      gsap.to(window, { scrollTo: innerHeight, duration: 1.5, ease: 'power1.inOut' });
+      gsap.to(window, { scrollTo: 'max', duration: 1.5, ease: 'power1.inOut' });
     };
 
     arrowBtn?.addEventListener('mouseenter', onEnter);
@@ -167,26 +211,64 @@ export default function MountainParallax() {
           <image className="mountFg" href={ASSETS.mountFg} width="1200" height="800" />
           <image className="cloud1" href={ASSETS.cloud1} width="1200" height="800" />
           <image className="cloud3" href={ASSETS.cloud3} width="1200" height="800" />
-          <text className="hero-word" fill="#fff" x="600" y="168" textAnchor="middle">
-            DIGITAL
-          </text>
+          <defs>
+            <linearGradient id="arrow-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#ea580c" />
+            </linearGradient>
+          </defs>
           <polyline
             className="arrow"
-            fill="#fff"
-            points="599,218 599,257 590,247 590,250 600,260 610,250 610,247 601,257 601,218"
+            fill="url(#arrow-grad)"
+            points="599,318 599,357 590,347 590,350 600,360 610,350 610,347 601,357 601,318"
           />
 
           <g mask="url(#m)">
             <rect fill="#fff" width="100%" height="100%" />
-            <text className="hero-word" x="600" y="168" fill="#162a43" textAnchor="middle">
-              DIRECT
-            </text>
           </g>
 
-          <rect id="arrow-btn" width="100" height="100" opacity="0" x="550" y="190" style={{ cursor: 'pointer' }} />
+          <rect id="arrow-btn" width="100" height="100" opacity="0" x="550" y="290" style={{ cursor: 'pointer' }} />
         </svg>
 
         <div className="scene-vignette" aria-hidden="true" />
+
+        <div className="welcome-words">
+          {WELCOME_WORDS.map((word) => (
+            <span key={word.lang} className="welcome-word" lang={word.lang} dir={word.dir}>
+              {word.text}
+            </span>
+          ))}
+        </div>
+
+        <div className="services-backdrop" aria-hidden="true">
+          {SERVICES.map((service) => (
+            <span key={service.id} className={`services-blob services-blob--${service.id}`} />
+          ))}
+          <svg className="liquid-defs" width="0" height="0" focusable="false">
+            <filter id="liquid-goo">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" />
+            </filter>
+          </svg>
+          <div className="liquid">
+            {SERVICES.map((service, col) => (
+              <div key={service.id} className={`liquid-col liquid-col--${service.id}`}>
+                {LIQUID_DROPS.map((drop, i) => (
+                  <span
+                    key={i}
+                    className="liquid-drop"
+                    style={{
+                      '--x': `${drop.x}%`,
+                      '--s': drop.s,
+                      '--d': `${drop.d}s`,
+                      '--delay': `${-(i * 2.3 + col * 1.7)}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
 
         <header className="brand-bar">
           <img src="/nservelogo.png" alt="" />

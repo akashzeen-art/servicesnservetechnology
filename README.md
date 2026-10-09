@@ -2,8 +2,8 @@
 
 Stacked scroll landing (same UI pattern as nServe.Service) for:
 
-- **India Gateway** → https://gateway.nserve.co/
-- **Cross Border** → http://payments.nserve.co/
+- **India Gateway** → https://gateways.nservetechnology.com/
+- **Cross Border** → https://payments.nservetechnology.com/
 
 ```bash
 npm install

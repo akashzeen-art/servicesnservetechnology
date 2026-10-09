@@ -5,7 +5,6 @@ import { PRIMARY_CORRIDORS } from '../../data/indiaLaunchRoutes';
 
 const COLOR = {
   navy: am5.color(0x0f172a),
-  slate: am5.color(0x64748b),
   orange: am5.color(0xea580c),
   amber: am5.color(0xf59e0b),
   tint: am5.color(0xfbd5a5),
@@ -13,7 +12,6 @@ const COLOR = {
   gold: am5.color(0xfbbf24),
   blue: am5.color(0x1e40af),
   white: am5.color(0xffffff),
-  border: am5.color(0xe2e8f0),
 };
 
 /** Close to cubic-bezier(0.4, 0, 0.2, 1). */
@@ -202,35 +200,6 @@ export function createMapStory({
       ...settings,
     });
 
-  const pillLabel = (text, settings = {}) =>
-    am5.Label.new(root, {
-      text,
-      centerX: am5.p50,
-      centerY: am5.p50,
-      fontSize: isMobile ? 10 : 12,
-      fontWeight: '700',
-      fill: COLOR.navy,
-      paddingTop: isMobile ? 3 : 5,
-      paddingBottom: isMobile ? 3 : 5,
-      paddingLeft: isMobile ? 8 : 11,
-      paddingRight: isMobile ? 8 : 11,
-      background: am5.RoundedRectangle.new(root, {
-        fill: COLOR.white,
-        fillOpacity: 0.94,
-        stroke: COLOR.border,
-        strokeWidth: 1,
-        cornerRadiusTL: 999,
-        cornerRadiusTR: 999,
-        cornerRadiusBL: 999,
-        cornerRadiusBR: 999,
-        shadowColor: COLOR.navy,
-        shadowBlur: 8,
-        shadowOpacity: 0.08,
-        shadowOffsetY: 2,
-      }),
-      ...settings,
-    });
-
   /* ------------------------------------------------------------------ hub */
 
   const hubSprites = { waves: [] };
@@ -328,13 +297,8 @@ export function createMapStory({
   /* ----------------------------------------------------- stage 1 — DCB */
 
   const dcb = (() => {
-    const cells = isMobile ? DCB_NODES.cells.slice(0, 3) : DCB_NODES.cells;
     const subscriber = at(DCB_NODES.subscriber.dLon, DCB_NODES.subscriber.dLat);
     const carrier = at(DCB_NODES.carrier.dLon, DCB_NODES.carrier.dLat);
-
-    const cellLines = pushSeries(am5map.MapLineSeries.new(root, { lineType: 'straight' }));
-    cellLines.mapLines.template.setAll({ stroke: COLOR.orange, strokeOpacity: 0.32, strokeWidth: 1, strokeDasharray: [2, 4] });
-    cells.forEach((cell) => addLine(cellLines, at(cell.dLon, cell.dLat), hub));
 
     const storyLines = pushSeries(am5map.MapLineSeries.new(root, { lineType: 'straight' }));
     storyLines.mapLines.template.setAll({ stroke: COLOR.orange, strokeOpacity: 0.85, strokeWidth: 2 });
@@ -342,25 +306,8 @@ export function createMapStory({
     const leg2 = addLine(storyLines, carrier, hub, 0.25);
 
     const nodes = pushSeries(am5map.MapPointSeries.new(root, {}));
-    const pings = [];
-    let dcbChip = null;
     nodes.bullets.push((_, __, dataItem) => {
       const node = dataItem.dataContext;
-      if (node.kind === 'cell') {
-        const ping = am5.Circle.new(root, { radius: 3, fillOpacity: 0, stroke: COLOR.orange, strokeWidth: 1, opacity: 0 });
-        pings.push(ping);
-        return am5.Bullet.new(root, { sprite: ping });
-      }
-      return undefined;
-    });
-    nodes.bullets.push((_, __, dataItem) => {
-      const node = dataItem.dataContext;
-      if (node.kind === 'cell') {
-        return am5.Bullet.new(root, {
-          sprite: am5.Circle.new(root, { radius: 3.2, fill: COLOR.white, stroke: COLOR.orange, strokeWidth: 1.3 }),
-        });
-      }
-      if (node.kind === 'chip') return undefined;
       const badge = am5.Container.new(root, { centerX: am5.p50, centerY: am5.p50 });
       badge.children.push(
         am5.Circle.new(root, {
@@ -387,24 +334,13 @@ export function createMapStory({
       );
       return am5.Bullet.new(root, { sprite: badge });
     });
-    nodes.bullets.push((_, __, dataItem) => {
-      const node = dataItem.dataContext;
-      if (node.kind === 'icon') {
-        return am5.Bullet.new(root, { sprite: smallLabel(node.label, { dy: isMobile ? 17 : 22 }) });
-      }
-      if (node.kind === 'chip') {
-        const chip = pillLabel('Paid · mobile balance', { dy: isMobile ? 18 : 22, opacity: motion ? 0 : 1 });
-        dcbChip = chip;
-        return am5.Bullet.new(root, { sprite: chip });
-      }
-      return undefined;
-    });
+    nodes.bullets.push((_, __, dataItem) =>
+      am5.Bullet.new(root, { sprite: smallLabel(dataItem.dataContext.label, { dy: isMobile ? 17 : 22 }) }),
+    );
 
     nodes.data.setAll([
-      { kind: 'icon', icon: 'phone', label: DCB_NODES.subscriber.label, ...subscriber },
-      { kind: 'icon', icon: 'tower', label: DCB_NODES.carrier.label, ...carrier },
-      ...cells.map((cell) => ({ kind: 'cell', ...at(cell.dLon, cell.dLat) })),
-      { kind: 'chip', ...hub },
+      { icon: 'phone', label: DCB_NODES.subscriber.label, ...subscriber },
+      { icon: 'tower', label: DCB_NODES.carrier.label, ...carrier },
     ]);
 
     const packets = particleSeries(3);
@@ -430,10 +366,6 @@ export function createMapStory({
           if (!active || disposed) return;
           setPacketOpacity(packet2, 0);
           pulseHub(1);
-          if (dcbChip) {
-            fade(dcbChip, 1, 250);
-            later(() => fade(dcbChip, 0, 300), 800);
-          }
           later(runPayment, 1300);
         });
       });
@@ -442,26 +374,17 @@ export function createMapStory({
     return {
       show() {
         active = true;
-        [cellLines, storyLines, nodes].forEach((series) => fade(series, 1, 700));
+        [storyLines, nodes].forEach((series) => fade(series, 1, 700));
         fade(packets, 1, 300);
         later(() => {
           drawLine(leg1, 700);
           later(() => drawLine(leg2, 500), 420);
         }, 150);
-        if (motion) {
-          pings.forEach((ping, index) => {
-            later(() => {
-              if (!active) return;
-              ping.animate({ key: 'radius', from: 3, to: 12, duration: 1800, loops: Infinity, easing: am5.ease.out(am5.ease.quad) });
-              ping.animate({ key: 'opacity', from: 0.6, to: 0, duration: 1800, loops: Infinity, easing: LINEAR });
-            }, 300 + index * 260);
-          });
-        }
         later(runPayment, 1000);
       },
       hide() {
         active = false;
-        [cellLines, storyLines, nodes, packets].forEach((series) => fade(series, 0, 500));
+        [storyLines, nodes, packets].forEach((series) => fade(series, 0, 500));
       },
     };
   })();
@@ -476,26 +399,20 @@ export function createMapStory({
     const nodes = pushSeries(am5map.MapPointSeries.new(root, {}));
     nodes.bullets.push(() =>
       am5.Bullet.new(root, {
-        sprite: am5.Circle.new(root, { radius: isMobile ? 8 : 11, fill: COLOR.amber, fillOpacity: 0.16, strokeOpacity: 0 }),
-      }),
-    );
-    nodes.bullets.push(() =>
-      am5.Bullet.new(root, {
         sprite: am5.Circle.new(root, { radius: isMobile ? 4 : 5, fill: COLOR.amber, stroke: COLOR.white, strokeWidth: 2 }),
       }),
     );
-    nodes.bullets.push((_, __, dataItem) =>
-      am5.Bullet.new(root, {
-        sprite: pillLabel(dataItem.dataContext.label, { centerY: am5.p100, dy: -14 }),
-      }),
-    );
+    if (!isMobile) {
+      nodes.bullets.push((_, __, dataItem) =>
+        am5.Bullet.new(root, {
+          sprite: smallLabel(dataItem.dataContext.label, { centerY: am5.p100, dy: -10 }),
+        }),
+      );
+    }
     nodes.data.setAll(GATEWAY_NODES.map((node) => ({ label: node.label, ...at(node.dLon, node.dLat) })));
 
     const particles = particleSeries(2.4);
-    const perRoute = isMobile ? 1 : 2;
-    const flows = routes.flatMap((route) =>
-      Array.from({ length: perRoute }, () => particles.pushDataItem({ lineDataItem: route, positionOnLine: 0 })),
-    );
+    const flows = routes.map((route) => particles.pushDataItem({ lineDataItem: route, positionOnLine: 0 }));
 
     let active = false;
     const runFlow = (dataItem, delay) => {
@@ -564,8 +481,8 @@ export function createMapStory({
     const reveal = (id, index, isPrimary) => {
       const link = linkFor(id);
       if (!link) return;
-      fade(link.get('mapPolygon'), isPrimary ? 0.85 : 0.28, 650);
-      fade(sourceNodeOf(link), isPrimary ? 0.9 : 0.45, 650);
+      fade(link.get('mapPolygon'), isPrimary ? 0.85 : 0.16, 650);
+      fade(sourceNodeOf(link), isPrimary ? 0.9 : 0.3, 650);
       countryPolygon(id)?.animate({
         key: 'fill',
         to: isPrimary ? COLOR.tint : COLOR.tintSoft,
@@ -634,25 +551,10 @@ export function createMapStory({
         }),
       }),
     );
-    nodes.bullets.push((_, __, dataItem) =>
-      am5.Bullet.new(root, {
-        sprite: pillLabel(dataItem.dataContext.label.toUpperCase(), {
-          centerY: am5.p100,
-          dy: -13,
-          fontSize: isMobile ? 9 : 11,
-        }),
-      }),
-    );
     if (!isMobile) {
       nodes.bullets.push((_, __, dataItem) =>
         am5.Bullet.new(root, {
-          sprite: smallLabel(dataItem.dataContext.services, {
-            dy: 13,
-            fontSize: 11,
-            fontWeight: '500',
-            fill: COLOR.slate,
-            opacity: 0.9,
-          }),
+          sprite: smallLabel(dataItem.dataContext.label, { centerY: am5.p100, dy: -12 }),
         }),
       );
     }

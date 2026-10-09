@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import MountainParallax, { HOMEPAGE_IMAGES } from './components/MountainParallax';
 
-const MapPreloader = lazy(() => import('./components/MapPreloader'));
+const RoutePreloader = lazy(() => import('./components/RoutePreloader'));
 
 export default function App() {
   const [booting, setBooting] = useState(true);
@@ -30,7 +30,7 @@ export default function App() {
     <>
       {booting && (
         <Suspense fallback={<div className="fixed inset-0 z-[100] bg-[#F5F7FB]" aria-hidden />}>
-          <MapPreloader onDone={finishBoot} onReveal={revealHome} images={HOMEPAGE_IMAGES} />
+          <RoutePreloader onDone={finishBoot} onReveal={revealHome} images={HOMEPAGE_IMAGES} />
         </Suspense>
       )}
 
