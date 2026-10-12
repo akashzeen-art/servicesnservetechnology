@@ -9,9 +9,6 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother);
 const ASSETS = {
   aerial: '/scene/palm-aerial.webp',
   beach: '/scene/dubai-beach.jpg',
-  cloud2: 'https://assets.codepen.io/721952/cloud2.png',
-  cloud1: 'https://assets.codepen.io/721952/cloud1.png',
-  cloud3: 'https://assets.codepen.io/721952/cloud3.png',
 };
 
 const SERVICES = [
@@ -140,6 +137,7 @@ export default function MountainParallax() {
       gsap.set('.services', { xPercent: -50, yPercent: -50 });
       SERVICES.forEach((service) => gsap.set(`.service-card--${service.id}`, fromFor(service)));
       gsap.from('.brand-bar', { y: -24, opacity: 0, duration: 0.9, ease: 'power3.out', delay: 0.15 });
+      gsap.set('.scroll-hint', { xPercent: -50, x: 0 });
       gsap.from('.scroll-hint', { y: 16, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.45 });
 
       const tl = gsap
@@ -151,17 +149,13 @@ export default function MountainParallax() {
             scrub: 0.6,
           },
         })
-        // Descend from orbit over the Palm: the photo zooms in while cloud layers rush past.
+        // Descend from orbit over the Palm: the photo zooms in.
         .fromTo(
           '.scene-aerial',
           { scale: 1 },
           { scale: 2.6, ease: 'power1.in', duration: DESCENT_END },
           0,
         )
-        .fromTo('.cloud1', { y: 100 }, { y: -900, ease: 'none', duration: DESCENT_END }, 0)
-        .fromTo('.cloud2', { y: -150 }, { y: -700, ease: 'none', duration: DESCENT_END }, 0)
-        .fromTo('.cloud3', { y: -50 }, { y: -800, ease: 'none', duration: DESCENT_END }, 0)
-        .to('.scene-clouds', { opacity: 0, ease: 'none', duration: 0.06 }, DESCENT_END - 0.04)
         .fromTo('.scroll-hint, .arrow', { opacity: 1 }, { opacity: 0, duration: 0.06 }, 0)
         // A bright haze hides the cut from the aerial shot to the beach.
         .fromTo('.scene-haze', { opacity: 0 }, { opacity: 0.92, ease: 'power1.in', duration: 0.06 }, LAND_AT - 0.06)
@@ -259,33 +253,20 @@ export default function MountainParallax() {
         <img className="scene-photo scene-aerial" src={ASSETS.aerial} alt="" />
 
         <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <linearGradient id="cloud-fade-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#000" />
-            <stop offset="12%" stopColor="#fff" />
-            <stop offset="70%" stopColor="#fff" />
-            <stop offset="100%" stopColor="#000" />
-          </linearGradient>
-          <mask id="cloud-fade" maskContentUnits="objectBoundingBox">
-            <rect width="1" height="1" fill="url(#cloud-fade-grad)" />
-          </mask>
-          <g className="scene-clouds">
-            <image className="cloud2" href={ASSETS.cloud2} width="1200" height="800" mask="url(#cloud-fade)" />
-            <image className="cloud1" href={ASSETS.cloud1} width="1200" height="800" mask="url(#cloud-fade)" />
-            <image className="cloud3" href={ASSETS.cloud3} width="1200" height="800" mask="url(#cloud-fade)" />
-          </g>
           <defs>
             <linearGradient id="arrow-grad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#fbbf24" />
               <stop offset="100%" stopColor="#ea580c" />
             </linearGradient>
           </defs>
-          <polyline
-            className="arrow"
-            fill="url(#arrow-grad)"
-            points="599,318 599,357 590,347 590,350 600,360 610,350 610,347 601,357 601,318"
-          />
+          <g className="arrow">
+            <g className="arrow-bounce">
+              <path className="arrow-outline" d="M600 326V364M589 353L600 364L611 353" />
+              <path className="arrow-stroke" d="M600 326V364M589 353L600 364L611 353" />
+            </g>
+          </g>
 
-          <rect id="arrow-btn" width="100" height="100" opacity="0" x="550" y="290" style={{ cursor: 'pointer' }} />
+          <rect id="arrow-btn" width="100" height="110" opacity="0" x="550" y="295" style={{ cursor: 'pointer' }} />
         </svg>
 
         <div className="scene-haze" aria-hidden="true" />
@@ -346,8 +327,10 @@ export default function MountainParallax() {
         </header>
 
         <p className="scroll-hint">
-          Scroll to choose a path
-          <i />
+          <span>Scroll to choose a path</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 7l6 6 6-6M6 12l6 6 6-6" />
+          </svg>
         </p>
 
         <p className="scroll-cue">

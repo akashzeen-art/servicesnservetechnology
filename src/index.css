@@ -114,10 +114,13 @@ main svg {
     radial-gradient(ellipse at center, transparent 48%, rgba(17, 27, 41, 0.35) 100%);
 }
 
+/* --word-top is where the top edge of a greeting sits; the box is 1.5em tall and centred. */
 .welcome-words {
+  --word-size: clamp(48px, 7vw, 104px);
+  --word-top: 0px;
   left: 0;
   right: 0;
-  top: 28%;
+  top: calc(var(--word-top) + 0.75 * var(--word-size));
   display: grid;
   place-items: center;
   transform: translateY(-50%);
@@ -137,7 +140,7 @@ main svg {
   grid-area: 1 / 1;
   padding: 0.15em 0.4em;
   font-family: var(--font-display);
-  font-size: clamp(52px, 9vw, 124px);
+  font-size: var(--word-size);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -148,6 +151,22 @@ main svg {
   -webkit-text-fill-color: transparent;
   opacity: 0;
   will-change: transform, opacity;
+}
+
+.welcome-word[lang='fr'] {
+  background-image: linear-gradient(180deg, #ffffff 0%, #bae6fd 45%, #38bdf8 100%);
+}
+
+.welcome-word[lang='es'] {
+  background-image: linear-gradient(180deg, #ede9fe 0%, #c4b5fd 45%, #8b5cf6 100%);
+}
+
+.welcome-word[lang='ar'] {
+  background-image: linear-gradient(180deg, #dcfce7 0%, #86efac 45%, #22c55e 100%);
+}
+
+.welcome-word[lang='hi'] {
+  background-image: linear-gradient(180deg, #fecdd3 0%, #fb7185 45%, #e11d48 100%);
 }
 
 .services-backdrop {
@@ -285,7 +304,9 @@ main svg {
 @media (prefers-reduced-motion: reduce) {
   .services-blob,
   .liquid-drop,
-  .scroll-cue svg {
+  main .scroll-cue svg,
+  main .scroll-hint svg,
+  main .arrow-bounce {
     animation: none;
   }
 }
@@ -333,29 +354,76 @@ main svg {
 
 .scroll-hint {
   left: 50%;
-  bottom: 36px;
+  bottom: 14px;
   transform: translateX(-50%);
   z-index: 5;
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.28em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
-  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  color: #fff;
 }
 
-.scroll-hint i {
-  display: block;
-  width: 1px;
-  height: 36px;
-  background: linear-gradient(180deg, #fff, transparent);
-  animation: hint-pulse 1.8s ease-in-out infinite;
+.scroll-hint span {
+  padding: 10px 14px 10px 18px;
+  border: 1px solid rgba(251, 191, 36, 0.7);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.45);
+  white-space: nowrap;
+}
+
+.scroll-hint svg {
+  position: static;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 1px rgba(15, 23, 42, 0.9)) drop-shadow(0 2px 6px rgba(15, 23, 42, 0.8));
+  animation: cue-bounce 1.6s ease-in-out infinite;
+}
+
+.arrow-bounce {
+  animation: arrow-bounce 1.6s ease-in-out infinite;
+}
+
+.arrow-outline,
+.arrow-stroke {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.arrow-outline {
+  stroke: rgba(15, 23, 42, 0.4);
+  stroke-width: 5.5;
+}
+
+.arrow-stroke {
+  stroke: url(#arrow-grad);
+  stroke-width: 2.5;
+}
+
+@keyframes arrow-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 .scroll-cue {
@@ -406,18 +474,6 @@ main svg {
   }
   50% {
     transform: translateY(4px);
-  }
-}
-
-@keyframes hint-pulse {
-  0%,
-  100% {
-    transform: scaleY(0.7);
-    opacity: 0.35;
-  }
-  50% {
-    transform: scaleY(1);
-    opacity: 1;
   }
 }
 
@@ -588,6 +644,11 @@ main svg {
 }
 
 @media (min-width: 721px) and (max-width: 1100px) {
+  /* Below 900px the greetings would reach the brand bar, so they sit just below it. */
+  .welcome-words {
+    --word-top: 84px;
+  }
+
   .services {
     width: min(760px, calc(100% - 48px));
     grid-template-columns: 1fr 1fr;
@@ -676,6 +737,14 @@ main svg {
   transform: translateX(5px);
 }
 
+/* 600px keeps the widest greeting (about 5.5em) clear of the brand bar on both sides. */
+@media (min-width: 900px) and (max-width: 1100px) {
+  .welcome-words {
+    --word-top: 0px;
+    --word-size: min(7vw, calc((100vw - 600px) / 5.5));
+  }
+}
+
 @media (max-width: 720px) {
   .northface {
     font-size: 42px;
@@ -688,6 +757,11 @@ main svg {
 
   .brand-bar img {
     width: 34px;
+  }
+
+  .welcome-words {
+    --word-size: clamp(40px, 12vw, 64px);
+    --word-top: 84px;
   }
 
   .services {
@@ -777,8 +851,16 @@ main svg {
   }
 
   .scroll-hint {
-    bottom: auto;
-    top: 34%;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: max-content;
+    max-width: calc(100% - 32px);
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .scroll-hint span {
+    padding: 9px 12px 9px 14px;
   }
 
   .scroll-cue {

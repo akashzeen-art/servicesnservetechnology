@@ -269,7 +269,13 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
       });
 
       // The step track fills between step dots in time with the traveller on the map.
-      const seg = Math.max(0, stopFractions.findLastIndex((frac) => proxy.t >= frac));
+      let seg = 0;
+      for (let i = stopFractions.length - 1; i > 0; i -= 1) {
+        if (proxy.t >= stopFractions[i]) {
+          seg = i;
+          break;
+        }
+      }
       const next = stopFractions[seg + 1];
       const within = next === undefined ? 0 : (proxy.t - stopFractions[seg]) / (next - stopFractions[seg]);
       if (stepsFillRef.current) {
