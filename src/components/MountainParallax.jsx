@@ -23,7 +23,7 @@ const SERVICES = [
     image: '/cards/DCB%20Mobile%20Payment%20Connections.png',
     from: { x: -900, y: 520, rotate: -18 },
     fromMobile: { x: -260, y: 420, rotate: -12 },
-    at: 0.62,
+    at: 0.72,
   },
   {
     id: 'gateway',
@@ -36,7 +36,7 @@ const SERVICES = [
     image: '/cards/tajmahal.png',
     from: { x: -640, y: 520, rotate: -14 },
     fromMobile: { x: -220, y: 420, rotate: -10 },
-    at: 0.68,
+    at: 0.78,
   },
   {
     id: 'crossborder',
@@ -49,7 +49,7 @@ const SERVICES = [
     image: '/cards/crossborder.png',
     from: { x: 640, y: 520, rotate: 14 },
     fromMobile: { x: 220, y: 420, rotate: 10 },
-    at: 0.74,
+    at: 0.84,
   },
   {
     id: 'solutions',
@@ -62,7 +62,7 @@ const SERVICES = [
     image: '/cards/Telecom%20Solutions%20Hub%20Infographic.png',
     from: { x: 900, y: 520, rotate: 18 },
     fromMobile: { x: 260, y: 420, rotate: 12 },
-    at: 0.8,
+    at: 0.9,
   },
 ];
 
@@ -70,24 +70,27 @@ const SERVICES = [
 const DESCENT_WORDS = [
   { text: 'Bienvenue', lang: 'fr', dir: 'ltr' },
   { text: 'Bienvenido', lang: 'es', dir: 'ltr' },
+  { text: 'Willkommen', lang: 'de', dir: 'ltr' },
+  { text: '欢迎', lang: 'zh', dir: 'ltr' },
   { text: 'مرحباً', lang: 'ar', dir: 'rtl' },
 ];
 
-// Timeline positions (the whole scroll is ~1.3 units): "Welcome" leaves at 0.03, each descent
-// greeting gets a 0.1 step from 0.05, the beach lands at 0.36 with the Hindi greeting at 0.4,
-// then the cards from 0.62.
-const DESCENT_END = 0.4;
-const LAND_AT = 0.36;
+// Timeline positions (the whole scroll is ~1.4 units): "Welcome" leaves at 0.025, each descent
+// greeting gets a 0.08 step from 0.05, the beach lands at 0.46 with the Hindi greeting at 0.5,
+// then the cards from 0.72.
+const DESCENT_END = 0.5;
+const LAND_AT = 0.46;
 const WORD_FIRST = 0.05;
-const WORD_STEP = 0.1;
-const WORD_IN = 0.055;
-const WORD_OUT = 0.045;
-const WORD_OVERLAP = 0.03;
+const WORD_STEP = 0.08;
+const WORD_IN = 0.045;
+const WORD_OUT = 0.04;
+const WORD_OVERLAP = 0.025;
 const HINDI_AT = LAND_AT + 0.04;
 const HINDI_IN = 0.08;
 const CUE_IN = 0.04;
-const CUE_OUT_AT = 0.55;
+const CUE_OUT_AT = 0.65;
 const CUE_OUT = 0.03;
+const BACKDROP_AT = 0.68;
 
 const WORD_ABOVE = { y: '-22vh', opacity: 0, scale: 0.92 };
 const WORD_SHOWN = { y: 0, opacity: 1, scale: 1 };
@@ -164,7 +167,7 @@ export default function MountainParallax() {
         .fromTo('.scene-beach', { scale: 1.35 }, { scale: 1, ease: 'power2.out', duration: 0.12 }, LAND_AT)
         .to('.scene-aerial', { opacity: 0, duration: 0.01 }, LAND_AT)
         .to('.scene-beach', { scale: 1.08, ease: 'none', duration: 0.4 }, LAND_AT + 0.12)
-        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.1 }, 0.58);
+        .fromTo('.services-backdrop', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.1 }, BACKDROP_AT);
 
       SERVICES.forEach((service) => {
         tl.fromTo(

@@ -394,19 +394,19 @@ export default function RoutePreloader({ onDone, onReveal, images = [] }) {
               exit={{ opacity: 0, y: reducedMotion ? 0 : -28 }}
               transition={{ duration: 0.65, delay: 0.08, ease }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src="/nservelogo.png"
                   alt=""
-                  className="h-10 sm:h-12 w-auto object-contain rounded-xl bg-white/95 p-1"
+                  className="h-12 sm:h-16 w-auto object-contain rounded-2xl bg-white/95 p-1.5"
                   aria-hidden="true"
                 />
-                <span className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
+                <span className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
                   nSERVE
                 </span>
               </div>
-              <p className="font-script text-3xl sm:text-4xl text-orange-400 leading-none">
-                Digital Meets Direct
+              <p className="route-gloss font-script text-4xl sm:text-5xl leading-none">
+                <span>Digital Meets Direct</span>
               </p>
             </motion.div>
 

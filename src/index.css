@@ -126,15 +126,19 @@ main svg {
   transform: translateY(-50%);
   z-index: 3;
   pointer-events: none;
-  filter: drop-shadow(0 0 1px rgba(8, 14, 28, 0.95)) drop-shadow(0 0 2px rgba(8, 14, 28, 0.8))
-    drop-shadow(0 6px 18px rgba(8, 14, 28, 0.6));
+  /* Four offset copies build a crisp dark outline round each letter, then a soft shadow lifts it. */
+  filter: drop-shadow(1.5px 0 0 #0b1220) drop-shadow(-1.5px 0 0 #0b1220) drop-shadow(0 1.5px 0 #0b1220)
+    drop-shadow(0 -1.5px 0 #0b1220) drop-shadow(0 8px 18px rgba(8, 14, 28, 0.6));
 }
 
-/* The Hindi greeting lands on the road in front of the Dubai Frame, just above the scroll cue. */
-.welcome-words--land {
-  top: auto;
-  bottom: 72px;
-  transform: none;
+/* The Hindi greeting sits in the sky inside the Dubai Frame, between its top beam and the palm's
+   crown (35% down the photo), sized to fit the opening. --img-w/--img-h are the rendered size of the
+   1672×941 photo, which covers the screen 40% down. */
+.welcome-words.welcome-words--land {
+  --img-w: max(100vw, 177.7vh);
+  --img-h: max(100vh, 56.28vw);
+  --word-size: calc(var(--img-w) * 0.038);
+  top: calc(var(--img-h) * 0.353 - (var(--img-h) - 100vh) * 0.4);
   filter: drop-shadow(0 6px 16px rgba(17, 27, 41, 0.6)) drop-shadow(0 0 2px rgba(17, 27, 41, 0.5));
 }
 
@@ -154,8 +158,8 @@ main svg {
   line-height: 1.2;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  /* Vivid fills that stay bright to the bottom: darker tones match the teal sea and disappear into it. */
-  background: linear-gradient(180deg, #fff59d 0%, #ffe01a 45%, #ffb800 100%);
+  /* Saturated fills with no pale top: pale tones wash out over the bright sea, darker ones sink into it. */
+  background: linear-gradient(180deg, #ffe14d 0%, #ffc300 50%, #ff9500 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -164,11 +168,19 @@ main svg {
 }
 
 .welcome-word[lang='fr'] {
-  background-image: linear-gradient(180deg, #ffd9c4 0%, #ff9a5c 45%, #ff6b35 100%);
+  background-image: linear-gradient(180deg, #ffa07a 0%, #ff6a3d 50%, #f23c13 100%);
 }
 
 .welcome-word[lang='es'] {
-  background-image: linear-gradient(180deg, #f4ffb0 0%, #d4ff3a 45%, #a8f000 100%);
+  background-image: linear-gradient(180deg, #e8ff6b 0%, #b8f500 50%, #7ed600 100%);
+}
+
+.welcome-word[lang='de'] {
+  background-image: linear-gradient(180deg, #ffe0f2 0%, #ff8fd0 45%, #ff4fa8 100%);
+}
+
+.welcome-word[lang='zh'] {
+  background-image: linear-gradient(180deg, #ffe3dc 0%, #ff9a8a 45%, #ff5a4f 100%);
 }
 
 .welcome-word[lang='ar'] {
@@ -197,7 +209,7 @@ main svg {
   filter: blur(70px);
   opacity: 0.35;
   translate: -50% -50%;
-  animation: blob-drift 14s ease-in-out infinite alternate;
+  animation: blob-drift 8s ease-in-out infinite alternate;
 }
 
 .services-blob--dcb {
@@ -286,8 +298,8 @@ main svg {
     color-mix(in srgb, var(--c) 60%, #000) 100%
   );
   animation:
-    liquid-rise var(--d) ease-in-out var(--delay) infinite alternate,
-    liquid-morph calc(var(--d) * 0.7) ease-in-out var(--delay) infinite alternate;
+    liquid-rise calc(var(--d) * 0.45) ease-in-out var(--delay) infinite alternate,
+    liquid-morph calc(var(--d) * 0.3) ease-in-out var(--delay) infinite alternate;
 }
 
 @keyframes liquid-rise {
@@ -323,7 +335,7 @@ main svg {
 
 .scrollDist {
   width: 100%;
-  height: 500vh;
+  height: 540vh;
 }
 
 .brand-bar {
@@ -359,7 +371,10 @@ main svg {
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.78;
+  color: #fcd34d;
+  text-shadow:
+    0 1px 2px rgba(5, 10, 22, 0.85),
+    0 0 10px rgba(5, 10, 22, 0.55);
 }
 
 .scroll-hint {
@@ -653,12 +668,26 @@ main svg {
   --card-accent: #10b981;
 }
 
-/* On desktop the Hindi greeting sits right on the road, so the scroll cue moves to the corner. */
-@media (min-width: 721px) {
-  .welcome-words--land {
-    bottom: 4px;
+/* On portrait screens cover would crop the frame's sides, so the photo is shown wide enough for the
+   whole frame, sits on the bottom edge, and the sky above continues in its top-row colours. */
+@media (max-aspect-ratio: 1/1) {
+  .scene-beach {
+    left: calc(50% - 120vw);
+    width: 240vw;
+    max-width: none;
+    object-fit: contain;
+    object-position: 50% 100%;
+    background: linear-gradient(90deg, #87d7fc 29%, #62cbfc 40%, #47bbf5 50%, #2db0f1 60%, #1ba7ec 71%);
   }
 
+  .welcome-words.welcome-words--land {
+    --img-w: min(240vw, 177.7vh);
+    --img-h: min(100vh, 135.1vw);
+    top: calc(100vh - var(--img-h) * (1 - 0.353));
+  }
+}
+
+@media (min-width: 721px) {
   .scroll-cue {
     left: auto;
     right: 32px;
@@ -794,31 +823,34 @@ main svg {
   }
 
   .services {
-    top: 52%;
+    top: 53%;
     width: calc(100% - 24px);
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: clamp(14px, 2.6vh, 24px);
   }
 
+  /* The cards fill the width here, so the liquid reaches past the stack and the drops are pushed
+     towards the screen edges: they show above, below, beside and between the cards. */
   .liquid {
-    top: 52%;
-    width: calc(100% - 24px);
-    height: 60vh;
+    top: 53%;
+    width: 100%;
+    height: 88vh;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, 1fr);
-    gap: 10px;
-    --travel: 4vh;
+    gap: 0;
+    --travel: 10vh;
   }
 
   .liquid-drop {
-    width: calc(var(--s) * 0.4%);
+    left: calc((var(--x) - 50%) * 2.8 + 50%);
+    width: calc(var(--s) * 0.7%);
   }
 
   .service-card {
     min-height: 0;
     border-radius: 16px;
     display: grid;
-    grid-template-columns: 108px 1fr;
+    grid-template-columns: 116px 1fr;
     align-items: stretch;
   }
 
@@ -826,8 +858,8 @@ main svg {
     position: relative;
     aspect-ratio: auto;
     height: 100%;
-    min-height: 112px;
-    max-height: 128px;
+    min-height: clamp(112px, 15vh, 132px);
+    max-height: 140px;
     overflow: hidden;
   }
 
@@ -892,12 +924,17 @@ main svg {
     padding: 9px 12px 9px 14px;
   }
 
+  /* Narrow phones can't fit the whole line, so it may wrap rather than run off the screen. */
   .scroll-cue {
-    bottom: 24px;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    width: max-content;
+    max-width: calc(100vw - 24px);
     gap: 8px;
     padding: 8px 10px 8px 14px;
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
+    white-space: normal;
+    text-align: center;
   }
 }
 
@@ -1116,6 +1153,44 @@ main svg {
     );
 }
 
+/* Glossy green-to-blue tagline: a white highlight sweeps across the gradient fill. The glow sits on
+   the outer element because Safari draws nothing when a filter shares an element with
+   background-clip: text. The padding stops the script's swashes from being clipped. */
+.route-gloss {
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.5)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
+}
+
+.route-gloss span {
+  display: inline-block;
+  padding: 0.08em 0.25em 0.12em;
+  background-image: linear-gradient(
+    110deg,
+    #34d399 0%,
+    #2dd4bf 30%,
+    #a5f3fc 44%,
+    #ffffff 50%,
+    #a5f3fc 56%,
+    #22d3ee 70%,
+    #60a5fa 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: route-gloss 2.8s ease-in-out infinite;
+}
+
+/* The highlight crosses the text in the first 60%, then rests off to the side. */
+@keyframes route-gloss {
+  0% {
+    background-position: 100% 0;
+  }
+  60%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
 .route-hud {
   width: min(30rem, calc(100% - 3rem));
   margin: 0 auto;
@@ -1262,7 +1337,8 @@ main svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .route-stop.is-on .route-stop-pin::after {
+  .route-stop.is-on .route-stop-pin::after,
+  .route-gloss span {
     animation: none;
   }
 }
