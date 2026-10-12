@@ -283,6 +283,8 @@ export default function MountainParallax() {
               {word.text}
             </span>
           ))}
+        </div>
+        <div className="welcome-words welcome-words--land">
           <span className="welcome-word welcome-word--hi" lang="hi">
             स्वागत है
           </span>
