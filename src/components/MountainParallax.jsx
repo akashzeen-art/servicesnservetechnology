@@ -88,6 +88,9 @@ const WORD_OUT = 0.045;
 const WORD_OVERLAP = 0.03;
 const HINDI_AT = LAND_AT + 0.04;
 const HINDI_IN = 0.08;
+const CUE_IN = 0.04;
+const CUE_OUT_AT = 0.55;
+const CUE_OUT = 0.03;
 
 const WORD_ABOVE = { y: '-22vh', opacity: 0, scale: 0.92 };
 const WORD_SHOWN = { y: 0, opacity: 1, scale: 1 };
@@ -209,6 +212,14 @@ export default function MountainParallax() {
         { ...WORD_SHOWN, ease: 'back.out(1.2)', duration: HINDI_IN },
         HINDI_AT,
       );
+
+      // Once the greeting has landed, prompt the user to keep scrolling to the services.
+      tl.fromTo(
+        '.scroll-cue',
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, ease: 'power2.out', duration: CUE_IN },
+        HINDI_AT + HINDI_IN - 0.01,
+      ).to('.scroll-cue', { y: 16, opacity: 0, ease: 'power1.in', duration: CUE_OUT }, CUE_OUT_AT);
     }, root);
 
     const arrowBtn = root.querySelector('#arrow-btn');
@@ -337,6 +348,13 @@ export default function MountainParallax() {
         <p className="scroll-hint">
           Scroll to choose a path
           <i />
+        </p>
+
+        <p className="scroll-cue">
+          <span>Scroll to explore our services</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 7l6 6 6-6M6 12l6 6 6-6" />
+          </svg>
         </p>
 
         <div className="services" aria-label="nSERVE services">

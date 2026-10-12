@@ -284,7 +284,8 @@ main svg {
 
 @media (prefers-reduced-motion: reduce) {
   .services-blob,
-  .liquid-drop {
+  .liquid-drop,
+  .scroll-cue svg {
     animation: none;
   }
 }
@@ -355,6 +356,57 @@ main svg {
   height: 36px;
   background: linear-gradient(180deg, #fff, transparent);
   animation: hint-pulse 1.8s ease-in-out infinite;
+}
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  translate: -50% 0;
+  z-index: 5;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.3);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-cue svg {
+  position: static;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: cue-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes cue-bounce {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(4px);
+  }
 }
 
 @keyframes hint-pulse {
@@ -727,6 +779,14 @@ main svg {
   .scroll-hint {
     bottom: auto;
     top: 34%;
+  }
+
+  .scroll-cue {
+    bottom: 24px;
+    gap: 8px;
+    padding: 8px 10px 8px 14px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
   }
 }
 
